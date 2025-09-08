@@ -90,3 +90,40 @@ class ResNet(nn.Module):
         x = torch.flatten(x, 1)
         x = self.fc(x)
         return x
+
+
+class Student(nn.Module):
+    def __init__(self, num_classes=100, width=1.0):
+        super().__init__()
+        c1 = int(32 * width)
+        c2 = int(64 * width)
+        c3 = int(128 * width)
+
+        self.features = nn.Sequential(
+            nn.Conv2d(3, c1, 3, padding=1, bias=False),
+            nn.BatchNorm2d(c1), nn.ReLU(inplace=True),
+
+            nn.Conv2d(c1, c1, 3, padding=1, bias=False),
+            nn.BatchNorm2d(c1), nn.ReLU(inplace=True),
+            nn.MaxPool2d(2),  # 32->16
+
+            nn.Conv2d(c1, c2, 3, padding=1, bias=False),
+            nn.BatchNorm2d(c2), nn.ReLU(inplace=True),
+
+            nn.Conv2d(c2, c2, 3, padding=1, bias=False),
+            nn.BatchNorm2d(c2), nn.ReLU(inplace=True),
+            nn.MaxPool2d(2),  # 16->8
+
+            nn.Conv2d(c2, c3, 3, padding=1, bias=False),
+            nn.BatchNorm2d(c3), nn.ReLU(inplace=True),
+
+            nn.Conv2d(c3, c3, 3, padding=1, bias=False),
+            nn.BatchNorm2d(c3), nn.ReLU(inplace=True),
+            nn.AdaptiveAvgPool2d(1),  # -> [B, c3, 1, 1]
+        )
+        self.classifier = nn.Linear(c3, num_classes)
+
+    def forward(self, x):
+        x = self.features(x).flatten(1)
+        return self.classifier(x)
+

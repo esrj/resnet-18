@@ -9,9 +9,9 @@ device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
 train_loader = get_dataloader()  # 確認這個是 train dataloader，且 shuffle=True
 model = ResNet(BasicBlock, [2, 2, 2, 2], num_classes=100).to(device).float()
 
-epochs = 50
-criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=1e-3)
+epochs = 25
+criterion = nn.CrossEntropyLoss(label_smoothing=0.1) # 0.1 smoothing 後可能變成 [0.033,0.033,0.9,0.033]。
+optimizer = optim.Adam(model.parameters(), lr=1e-3,weight_decay=1e-4) # weight_decay 把所有的係數往 0 拉一點
 
 for epoch in range(epochs):
     model.train()
@@ -27,8 +27,7 @@ for epoch in range(epochs):
         logits = model(x)
         loss = criterion(logits, y)
         loss.backward()
-
-        optimizer.step()  # ←←← 關鍵：更新權重
+        optimizer.step()
 
         # 記錄訓練 acc/loss
         preds = logits.argmax(dim=1)
