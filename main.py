@@ -4,7 +4,7 @@ import torch.optim as optim
 from data import get_dataloader
 from model import ResNet, BasicBlock
 
-device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+device = torch.device("mps" if torch.backends.mps.is_available() else ("cuda" if torch.cuda.is_available() else "cpu"))
 
 train_loader = get_dataloader()  # 確認這個是 train dataloader，且 shuffle=True
 model = ResNet(BasicBlock, [2, 2, 2, 2], num_classes=100).to(device).float()
