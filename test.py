@@ -1,7 +1,8 @@
 import torch
 from data import get_dataloader
 
-device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+device = torch.device("mps" if torch.backends.mps.is_available() else ("cuda" if torch.cuda.is_available() else "cpu"))
+
 dataloader = get_dataloader(path = 'cifar100/test')
 
 # # 載 pruning model
