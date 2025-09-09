@@ -6,7 +6,8 @@ import torch_pruning as tp
 from model import ResNet, BasicBlock
 from data import get_dataloader
 
-device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+device = torch.device("mps" if torch.backends.mps.is_available() else ("cuda" if torch.cuda.is_available() else "cpu"))
+
 
 # 載入模型
 model = ResNet(BasicBlock, [2,2,2,2], num_classes=100).to(device)
