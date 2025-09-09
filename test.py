@@ -1,16 +1,16 @@
 import torch
-import torch.nn as nn
-import torch.optim as optim
 from data import get_dataloader
-from model import ResNet, BasicBlock
-import torch_pruning as tp
-
 
 device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
-dataloader = get_dataloader(path = 'cifar100/train')
+dataloader = get_dataloader(path = 'cifar100/test')
 
-# 載 model
-model = torch.jit.load("ResNet18_structured_pruned.ts", map_location=device)
+# # 載 pruning model
+# model = torch.jit.load("ResNet18_structured_pruned.ts", map_location=device)
+
+# # 載 model
+from model import ResNet, BasicBlock
+model = ResNet(BasicBlock, [2, 2, 2, 2], num_classes=100).to(device).float()
+model.load_state_dict(torch.load("ResNet18.pt"))
 
 print(" ================= testing =================")
 
@@ -28,6 +28,4 @@ with torch.no_grad():
         total += len(y)
         correct += (y_class == y).sum().item()
     acc = correct/total
-
     print(f"Accuracy : {acc}")
-
